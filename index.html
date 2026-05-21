@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Keuangan Warung</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800">Finance Tracker Owner</h1>
+            <p class="text-gray-600">Pencatatan Uang Masuk & Keluar Warung</p>
+        </div>
+
+        <!-- Form Input -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Input Transaksi Baru</h2>
+            <form id="financeForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tanggal</label>
+                        <input type="date" id="tanggal" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jenis Transaksi</label>
+                        <select id="jenis" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="Masuk">Uang Masuk (Pendapatan)</option>
+                            <option value="Keluar">Uang Keluar (Pengeluaran)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                        <input type="text" id="kategori" placeholder="Contoh: Penjualan Harian, Sembako, Listrik" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jumlah (Rp)</label>
+                        <input type="number" id="jumlah" placeholder="Masukkan angka saja" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Keterangan Tambahan</label>
+                    <textarea id="keterangan" rows="2" placeholder="Catatan opsional..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                    Simpan Transaksi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Set tanggal hari ini secara otomatis saat halaman dibuka
+        document.getElementById('tanggal').valueToDate = new Date();
+        document.getElementById('tanggal').value = new Date().toISOString().substring(0, 10);
+
+        // Handler saat form di-submit
+        document.getElementById('financeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Menyimpan...';
+
+            const data = {
+                tanggal: document.getElementById('tanggal').value,
+                jenis: document.getElementById('jenis').value,
+                kategori: document.getElementById('kategori').value,
+                jumlah: document.getElementById('jumlah').value,
+                keterangan: document.getElementById('keterangan').value
+            };
+
+            // Link Google Apps Script akan kita masukkan di sini nanti
+            const scriptUrl = 'URL_GOOGLE_APPS_SCRIPT_ANDA';
+
+            try {
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Menghindari masalah CORS
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Data keuangan berhasil dicatat.',
+                    confirmButtonColor: '#4F46E5'
+                });
+
+                // Reset form kecuali tanggal
+                document.getElementById('kategori').value = '';
+                document.getElementById('jumlah').value = '';
+                document.getElementById('keterangan').value = '';
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat menyimpan data.',
+                });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Simpan Transaksi';
+            }
+        });
+    </script>
+</body>
+</html>
